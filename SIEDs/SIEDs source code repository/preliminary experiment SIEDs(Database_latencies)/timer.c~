@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <time.h>
+#include "tlsf.h"
+#include "tlsf.c"
+#define MEMSIZE	(1<<24) /* 2 to the 24 power, about 16 million */
+
+int main () {
+	register int 	i, count, n;
+	register char	*p;
+	clock_t	        c1, c2;
+	double		t;
+        char pool[MEMSIZE];
+	
+        
+	/* how many memory accesses to do */
+	n = 10* MEMSIZE;
+
+	/* count the number of memory accesses done */
+	count = 0;
+
+	/* start indexing the array at element 0 */
+	i = 0;
+
+	/* read number of clock ticks so far */
+	c1 = clock ();
+
+	init_memory_pool(MEMSIZE,pool);
+        
+        /* do n memory accesses */
+	while (count < n) {
+		
+	       /* allocate a bunch of bytes */
+	        
+               
+                p = (char *) malloc_ex (MEMSIZE,pool);
+               
+               /* write 0 to memory; this is the memory access we're timing */
+
+                p[i]=0;
+              
+		/* go to next index in array of bytes */
+		i++;
+
+		/* loop around if we go out of bounds */
+		if (i >= MEMSIZE) i = 0;
+
+		/* one more memory access */
+		count++;
+	}
+
+	/* what time is it now? */
+	c2 = clock ();
+
+	/* how many clock ticks have passed? */
+	t = c2 - c1;
+
+	/* how many seconds is that? */
+	t /= CLOCKS_PER_SEC;
+	printf ("%f seconds\n", t);
+
+	/* how many seconds to access one byte? */
+	t /= n;
+
+	/* multiply by a billion to get nanoseconds */
+	printf ("%f nanoseconds per access\n", t );
+	exit (0);
+}

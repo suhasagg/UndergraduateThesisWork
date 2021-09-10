@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <time.h>
+#include"tlsf.h"
+#include"tlsf.c"
+#define MEMSIZE	(1<<24)
+
+int main () {
+	register int 	i, count, n;
+	register char	*p;
+	clock_t		c1, c2, k;
+	double		t;
+        char pool[MEMSIZE];
+        init_memory_pool(MEMSIZE,pool);
+	n = MEMSIZE * 10;
+	for (k=1; k<100; k++) {
+		count = 0;
+		i = 0;
+		c1 = clock ();
+		while (count < n) {
+		p = (char *) malloc_ex (1,pool);	
+                        p[i] = 0;
+			i+=k;
+			if (i >= MEMSIZE) i = 0;
+			count++;
+		}
+		c2 = clock ();
+		t = c2 - c1;
+		t /= CLOCKS_PER_SEC;
+		printf ("k = %d\n", k);
+		printf ("%f seconds\n", t);
+		t /= n;
+		printf ("%f nanoseconds per access\n", t * 10e9);
+		fflush (stdout);
+		fflush (stderr);
+	}
+	exit (0);
+}
